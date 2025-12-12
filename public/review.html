@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Recordings - Konkani Audio Collector</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .review-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .review-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .review-header h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .review-header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .filter-section {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .filter-section select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .recordings-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .recordings-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .recordings-table th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .recordings-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .recordings-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .recordings-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .sentence-text {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 16px;
+            color: #1e293b;
+            max-width: 400px;
+        }
+
+        .story-title {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .audio-player {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .flag-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .flag-dropdown.needs-rerecording {
+            border-color: #ff5252;
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .flag-dropdown.good {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            color: #1e40af;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .no-recordings {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .stats-summary {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <a href="/" class="back-link">← Back to Home</a>
+
+        <div class="review-header">
+            <h1>📝 Review Recordings</h1>
+            <p>Listen to recordings and flag any that need re-recording</p>
+        </div>
+
+        <div class="stats-summary" id="statsSummary">
+            <div class="stat-item">
+                <div class="stat-number" id="totalCount">-</div>
+                <div class="stat-label">Total Recordings</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="needsRerecordingCount">-</div>
+                <div class="stat-label">Needs Re-recording</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="goodCount">-</div>
+                <div class="stat-label">Good Quality</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <label for="filterStatus">Filter:</label>
+            <select id="filterStatus">
+                <option value="all">All Recordings</option>
+                <option value="rejected">Rejected Only</option>
+                <option value="good">Good Quality Only</option>
+            </select>
+        </div>
+
+        <div class="recordings-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Recording #</th>
+                        <th style="width: 150px;">User</th>
+                        <th style="width: 180px;">Story Title</th>
+                        <th>Sentence (Devanagari)</th>
+                        <th style="width: 320px;">Recording</th>
+                        <th style="width: 150px;">Quality Check</th>
+                    </tr>
+                </thead>
+                <tbody id="recordingsTableBody">
+                    <tr>
+                        <td colspan="6" class="loading">Loading recordings...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allRecordings = [];
+
+        function maskEmail(email) {
+            if (!email || email.length < 3) return email;
+            const [localPart, domain] = email.split('@');
+            if (!domain) return email;
+            
+            // Show first and last letter of local part, mask the rest
+            const masked = localPart[0] + '*'.repeat(Math.max(0, localPart.length - 2)) + localPart[localPart.length - 1];
+            return masked + '@' + domain;
+        }
+
+        async function loadRecordings() {
+            try {
+                const response = await fetch('/api/recordings');
+                if (!response.ok) {
+                    throw new Error('Failed to load recordings');
+                }
+                
+                allRecordings = await response.json();
+                updateStats();
+                renderRecordings();
+            } catch (error) {
+                console.error('Error loading recordings:', error);
+                document.getElementById('recordingsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="no-recordings">
+                            Error loading recordings. Please try again later.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const total = allRecordings.length;
+            const rejected = allRecordings.filter(r => r.status === 'rejected').length;
+            const approved = allRecordings.filter(r => r.status === 'approved').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('needsRerecordingCount').textContent = rejected;
+            document.getElementById('goodCount').textContent = approved;
+        }
+
+        function renderRecordings() {
+            const filterStatus = document.getElementById('filterStatus').value;
+            
+            let filteredRecordings = allRecordings;
+            if (filterStatus === 'rejected') {
+                filteredRecordings = allRecordings.filter(r => r.status === 'rejected');
+            } else if (filterStatus === 'good') {
+                filteredRecordings = allRecordings.filter(r => r.status === 'approved');
+            }
+
+            const tbody = document.getElementById('recordingsTableBody');
+
+            if (filteredRecordings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="no-recordings">
+                            ${allRecordings.length === 0 
+                                ? 'No recordings found. Start recording to see them here!' 
+                                : 'No recordings match the current filter.'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredRecordings.map((recording, index) => `
+                <tr>
+                    <td>${recording.id}</td>
+                    <td>${maskEmail(recording.user_id)}</td>
+                    <td>
+                        <div class="story-title">${recording.story_title}</div>
+                    </td>
+                    <td>
+                        <div class="sentence-text">${recording.sentence_text}</div>
+                    </td>
+                    <td>
+                        <audio controls class="audio-player" preload="metadata">
+                            <source src="/api/recordings/${recording.id}/audio" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td>
+                        <select 
+                            class="flag-dropdown ${recording.status === 'rejected' ? 'needs-rerecording' : 'good'}"
+                            data-recording-id="${recording.id}"
+                            onchange="updateFlag(${recording.id}, this.value)">
+                            <option value="pending" ${recording.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="approved" ${recording.status === 'approved' ? 'selected' : ''}>Approved</option>
+                            <option value="rejected" ${recording.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateFlag(recordingId, status) {
+            const dropdown = document.querySelector(`[data-recording-id="${recordingId}"]`);
+            const originalValue = dropdown.value;
+
+            try {
+                const response = await fetch(`/api/recordings/${recordingId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: status })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update status');
+                }
+
+                // Update local data
+                const recording = allRecordings.find(r => r.id === recordingId);
+                if (recording) {
+                    recording.status = status;
+                }
+
+                // Update dropdown styling
+                if (status === 'rejected') {
+                    dropdown.classList.add('needs-rerecording');
+                    dropdown.classList.remove('good');
+                } else {
+                    dropdown.classList.add('good');
+                    dropdown.classList.remove('needs-rerecording');
+                }
+
+                updateStats();
+
+            } catch (error) {
+                console.error('Error updating flag:', error);
+                alert('Failed to update flag. Please try again.');
+                // Revert dropdown to original value
+                dropdown.value = originalValue;
+            }
+        }
+
+        // Event listener for filter changes
+        document.getElementById('filterStatus').addEventListener('change', renderRecordings);
+
+        // Load recordings on page load
+        loadRecordings();
+    </script>
+</body>
+</html>

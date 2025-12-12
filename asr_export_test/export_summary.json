@@ -1,0 +1,29 @@
+{
+  "export_date": "2025-12-09T00:42:12.604Z",
+  "total_recordings": 4,
+  "total_duration_minutes": 0.16389168333333332,
+  "total_size_mb": 611382523563075.5,
+  "splits": {
+    "train": {
+      "count": 3,
+      "ratio": 0.8
+    },
+    "dev": {
+      "count": 0,
+      "ratio": 0.1
+    },
+    "test": {
+      "count": 1,
+      "ratio": 0.1
+    }
+  },
+  "audio_format": {
+    "sample_rate": 16000,
+    "channels": 1,
+    "format": "wav"
+  },
+  "duration_range": {
+    "min": 0.5,
+    "max": 30
+  }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Marathi Sentences - Deaf Speech Recorder</title>
+    <meta name="description" content="Record Marathi sentences to help train AI for deaf speech recognition">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .recording-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-record {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-record:hover:not(:disabled) {
+            background: #b91c1c;
+        }
+        
+        .btn-record.recording {
+            background: #991b1b;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .btn-stop {
+            background: #64748b;
+            color: white;
+        }
+        
+        .btn-stop:hover:not(:disabled) {
+            background: #475569;
+        }
+        
+        .btn-play {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-play:hover:not(:disabled) {
+            background: #15803d;
+        }
+        
+        .btn-submit {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-submit:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: #cbd5e1;
+        }
+
+        /* Retry button for validation errors */
+        .btn-retry {
+            background: #14532d; /* dark green */
+            color: white;
+            border-radius: 8px;
+            padding: 12px 22px;
+            font-weight: 700;
+            border: none;
+        }
+        .btn-retry:hover:not(:disabled) {
+            background: #114028;
+        }
+        
+        .sentence-display {
+            text-align: center;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .sentence-devanagari {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+        
+        .sentence-iast {
+            font-size: 1.2rem;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .progress-info {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #16a34a;
+        }
+        
+        .status-error {
+            background: #ffffff; /* white background */
+            color: #111827; /* dark text */
+            border: 1px solid #d1d5db; /* light grey border */
+            box-shadow: none;
+        }
+        
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 2px solid #2563eb;
+        }
+        
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: #1e293b;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #dc2626;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        .recording-indicator.active {
+            display: flex;
+        }
+        
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background: #dc2626;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Stories</a>
+        
+        <header>
+            <h1>🎙️ Record Sentences</h1>
+            <p id="story-title">Loading...</p>
+            <div class="user-info">
+                <span id="user-email-recorder"></span>
+            </div>
+        </header>
+
+        <main>
+            <div id="loading" class="status-message status-info">
+                Loading sentence...
+            </div>
+
+            <div id="recorder-section" style="display: none;">
+                <div class="progress-info">
+                    <span id="progress-text">Sentence 1 of X</span> | 
+                    <span id="remaining-text">X remaining</span>
+                </div>
+
+                <div class="sentence-display">
+                    <div class="sentence-devanagari" id="sentence-devanagari">
+                        <!-- Devanagari text here -->
+                    </div>
+                    <div class="sentence-iast" id="sentence-iast">
+                        <!-- IAST transliteration here -->
+                    </div>
+                </div>
+
+                <div class="recording-indicator" id="recording-indicator">
+                    <div class="recording-dot"></div>
+                    <span>Recording...</span>
+                </div>
+
+                <canvas id="visualizer" class="audio-visualizer"></canvas>
+
+                <div class="recording-controls">
+                    <button id="btn-record" class="btn btn-record">
+                        🎙️ Record
+                    </button>
+                    <button id="btn-stop" class="btn btn-stop" disabled>
+                        ⏹️ Stop
+                    </button>
+                    <button id="btn-play" class="btn btn-play" disabled>
+                        ▶️ Play
+                    </button>
+                    <button id="btn-rerecord" class="btn btn-secondary" disabled style="display: none;">
+                        🔄 Re-record
+                    </button>
+                    <button id="btn-submit" class="btn btn-submit" disabled>
+                        ✓ Submit & Next
+                    </button>
+                </div>
+
+                <div id="status-message" style="display: none;"></div>
+
+                <div class="recording-controls" style="margin-top: 30px;">
+                    <button id="btn-previous" class="btn btn-secondary">
+                        ← Previous
+                    </button>
+                    <button id="btn-next" class="btn btn-secondary">
+                        Next →
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="btn-end" class="btn btn-secondary">
+                        End Recording Session
+                    </button>
+                </div>
+            </div>
+
+            <div id="completion-section" style="display: none;">
+                <div class="status-message status-success">
+                    <h2>🎉 Congratulations!</h2>
+                    <p>You've completed all sentences in this story!</p>
+                    <p style="margin-top: 15px;">
+                        <a href="index.html" class="btn btn-primary">Choose Another Story</a>
+                    </p>
+                </div>
+            </div>
+
+                <div id="error-section" style="display: none;">
+                <div class="status-message status-error">
+                        <h3>Hmm.</h3>
+                        <p id="error-message"></p>
+                        <p style="margin-top: 15px;">
+                            <button id="error-retry-btn" class="btn btn-retry">Retry</button>
+                            <a id="error-back-link" href="index.html" class="btn btn-secondary" style="margin-left: 10px;">Back to Stories</a>
+                        </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="recorder.js"></script>
+</body>
+</html>

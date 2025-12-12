@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deaf Speech Recorder - Empowering Voices</title>
+    <meta name="description" content="Help train AI to understand deaf speech patterns by recording Marathi stories">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Email Entry Section (shown first) -->
+        <section id="email-section" class="email-section">
+            <header class="hero-header">
+                <div class="sdg-badge">
+                    <span class="sdg-number">3</span>
+                    <span class="sdg-text">UN SDG Goal</span>
+                </div>
+                <h1>♿ Empowering Deaf Voices Through AI</h1>
+                <p class="hero-subtitle">Help train AI to understand deaf speech patterns by recording Marathi stories</p>
+                <p class="hero-mission">Together, we're building technology that gives voice to the deaf community</p>
+            </header>
+            
+            <div class="email-card">
+                <h2>Join Our Mission</h2>
+                <p class="email-description">
+                    Please enter your email address to start recording. Your contribution helps:
+                </p>
+                <ul class="email-benefits">
+                    <li>🎯 Train AI to recognize deaf speech patterns</li>
+                    <li>🌍 Build inclusive technology for accessibility</li>
+                    <li>💪 Empower the deaf community with better tools</li>
+                    <li>📊 Track your impact and contributions</li>
+                </ul>
+                
+                <form id="email-form" class="email-form">
+                    <input 
+                        type="email" 
+                        id="email-input" 
+                        placeholder="your.email@example.com" 
+                        required
+                        autocomplete="email"
+                        class="email-input"
+                    />
+                    <button type="submit" class="btn-primary btn-large">
+                        Continue
+                    </button>
+                </form>
+                
+                <p class="email-privacy">
+                    🔒 Your email is used only for tracking your contributions. We respect your privacy.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Content Section (shown after email entry) -->
+        <div id="main-content" style="display: none;">
+            <header>
+                <h1>🎙️ Konkani Audio Recorder</h1>
+                <p>Help build an Amchi Konkani speech recognition system by recording your voice</p>
+                <div class="user-info">
+                    <span id="user-email-display"></span>
+                    <button id="btn-change-email" class="btn-secondary btn-small">Change Email</button>
+                    <a href="review.html" class="btn-secondary btn-small" style="margin-left: 10px; text-decoration: none; display: inline-block; line-height: normal;">Review All Recordings</a>
+                </div>
+            </header>
+
+            <main>
+                <section id="user-progress-section" class="user-progress" style="display: none;">
+                    <h3>Your Progress</h3>
+                    <div id="user-stats" class="user-stats-grid"></div>
+                </section>
+
+                <section class="intro">
+                    <h2>How it works:</h2>
+                    <ol>
+                        <li>Choose a story from the list below</li>
+                        <li>Read sentences aloud in Konkani</li>
+                        <li>Record your voice using the browser</li>
+                        <li>Submit recordings to help train the AI model</li>
+                    </ol>
+                </section>
+
+                <section class="stories-section">
+                    <h2>Select a Story</h2>
+                    <div id="loading" class="loading">Loading stories...</div>
+                    <div id="error" class="error" style="display: none;"></div>
+                    <div id="stories-list" class="stories-grid"></div>
+                                    <details id="debug-stories" style="margin-top: 10px; display: none;">
+                                        <summary>Show API Response (debug)</summary>
+                                        <pre id="debug-stories-json"></pre>
+                                    </details>
+                </section>
+
+                <section class="info">
+                    <h3>Why contribute?</h3>
+                    <p>
+                        Your voice recordings will be used to train an automatic speech recognition (ASR) 
+                        system for Konkani language. This technology can help preserve and promote our 
+                        language in the digital age.
+                    </p>
+                    <p>
+                        All recordings are voluntary and will be used only for research and education purposes.
+                    </p>
+                </section>
+            </main>
+
+            <footer>
+                <p>Konkani Audio Collector | Built with ❤️ for language preservation</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Email and user session management
+        let userEmail = null;
+
+        function initApp() {
+            // Check if user email is already stored
+            userEmail = sessionStorage.getItem('userEmail');
+            
+            if (userEmail) {
+                showMainContent();
+            } else {
+                showEmailSection();
+            }
+        }
+
+        function showEmailSection() {
+            document.getElementById('email-section').style.display = 'block';
+            document.getElementById('main-content').style.display = 'none';
+            
+            const form = document.getElementById('email-form');
+            form.addEventListener('submit', handleEmailSubmit);
+        }
+
+        function showMainContent() {
+            document.getElementById('email-section').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            // Display user email
+            const emailDisplay = document.getElementById('user-email-display');
+            if (emailDisplay) {
+                emailDisplay.textContent = `📧 ${userEmail}`;
+            }
+            
+            // Add change email handler
+            const changeEmailBtn = document.getElementById('btn-change-email');
+            if (changeEmailBtn) {
+                changeEmailBtn.addEventListener('click', handleChangeEmail);
+            }
+            
+            // Load stories and user progress
+            loadUserProgress();
+            loadStories();
+        }
+
+        async function handleEmailSubmit(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('email-input');
+            const email = emailInput.value.trim().toLowerCase();
+            
+            // Basic email validation
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Store email in session
+            userEmail = email;
+            sessionStorage.setItem('userEmail', email);
+            
+            // Show main content
+            showMainContent();
+        }
+
+        function handleChangeEmail() {
+            if (confirm('Are you sure you want to change your email? Your current session will end.')) {
+                sessionStorage.removeItem('userEmail');
+                sessionStorage.removeItem('selectedStoryId');
+                userEmail = null;
+                
+                // Clear the email input field
+                const emailInput = document.getElementById('email-input');
+                if (emailInput) {
+                    emailInput.value = '';
+                }
+                
+                showEmailSection();
+            }
+        }
+
+        async function loadUserProgress() {
+            try {
+                const response = await fetch(`/api/users/${encodeURIComponent(userEmail)}/progress`);
+                if (!response.ok) {
+                    console.warn('Could not load user progress');
+                    return;
+                }
+                
+                const data = await response.json();
+                displayUserProgress(data);
+            } catch (error) {
+                console.error('Failed to load user progress:', error);
+            }
+        }
+
+        function displayUserProgress(data) {
+            const progressSection = document.getElementById('user-progress-section');
+            const statsDiv = document.getElementById('user-stats');
+            
+            if (!data || !data.total_recordings || data.total_recordings === 0) {
+                progressSection.style.display = 'none';
+                return;
+            }
+            
+            progressSection.style.display = 'block';
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${data.total_recordings || 0}</div>
+                    <div class="stat-label">Total Recordings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.stories_started || 0}</div>
+                    <div class="stat-label">Stories Started</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${data.stories_completed || 0}</div>
+                    <div class="stat-label">Stories Completed</div>
+                </div>
+            `;
+        }
+
+        // Load and display stories
+        async function loadStories() {
+            try {
+                // Pass userId to get user-specific progress
+                const url = userEmail 
+                    ? `/api/stories?userId=${encodeURIComponent(userEmail)}`
+                    : '/api/stories';
+                    
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                // Debugging output: print raw data to console
+                console.debug('API /api/stories returned:', data);
+                                const stories = data.stories || [];
+                                // Fill debug area for troubleshooting
+                                const dbgEl = document.getElementById('debug-stories');
+                                if (dbgEl) {
+                                    const dbgJson = document.getElementById('debug-stories-json');
+                                    if (dbgJson) dbgJson.textContent = JSON.stringify(data, null, 2);
+                                    dbgEl.style.display = 'block';
+                                }
+                
+                const loadingEl = document.getElementById('loading');
+                const errorEl = document.getElementById('error');
+                const storiesListEl = document.getElementById('stories-list');
+                
+                loadingEl.style.display = 'none';
+                
+                // Clear existing stories to prevent duplicates
+                storiesListEl.innerHTML = '';
+                
+                if (!Array.isArray(stories) || stories.length === 0) {
+                    errorEl.textContent = 'No stories available yet. Check back soon!';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                
+                // Render story cards
+                stories.forEach(story => {
+                    const card = document.createElement('div');
+                    card.className = 'story-card';
+                    
+                    // Use user-specific stats if available, otherwise use global stats
+                    const completionPercent = story.user_completion_pct !== undefined 
+                        ? Number(story.user_completion_pct || 0)
+                        : Number(story.completion_pct || 0);
+                    const recordingsCount = story.user_recordings !== undefined
+                        ? Number(story.user_recordings || 0)
+                        : Number(story.total_recordings || 0);
+                    const sentencesRecorded = story.user_sentences_recorded !== undefined
+                        ? Number(story.user_sentences_recorded || 0)
+                        : Number(story.sentences_with_recordings || 0);
+                    const totalSentences = Number(story.total_sentences || 0);
+                    
+                    // Show user-specific or global label
+                    const statsLabel = userEmail ? 'Your Progress' : 'Global Progress';
+                    
+                    card.innerHTML = `
+                        <h3>${escapeHtml(story.title)}</h3>
+                        <div class="story-stats">
+                            <p><strong>Total Sentences:</strong> ${totalSentences}</p>
+                            <p><strong>${statsLabel}:</strong> ${sentencesRecorded} / ${totalSentences} sentences</p>
+                            <p><strong>Completion:</strong> ${completionPercent.toFixed(1)}%</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${completionPercent}%"></div>
+                        </div>
+                        <button class="btn-primary" onclick="startRecording(${story.id})">
+                            ${sentencesRecorded > 0 ? 'Continue Recording' : 'Start Recording'}
+                        </button>
+                    `;
+                    
+                    storiesListEl.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load stories:', error);
+                document.getElementById('loading').style.display = 'none';
+                const errMsg = `Failed to load stories: ${error.message || error}`;
+                document.getElementById('error').textContent = errMsg;
+                document.getElementById('error').style.display = 'block';
+                // Keep console.debug for detailed inspection
+                if (error.response) {
+                    console.debug('Response status:', error.response.status);
+                    console.debug('Response text:', error.response.text);
+                }
+            }
+        }
+        
+        function startRecording(storyId) {
+            // Save story selection and navigate to recorder
+            sessionStorage.setItem('selectedStoryId', storyId);
+            window.location.href = 'recorder.html';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Initialize app on page load
+        initApp();
+    </script>
+</body>
+</html>

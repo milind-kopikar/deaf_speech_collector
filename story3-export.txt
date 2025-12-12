@@ -1,0 +1,43 @@
+
+=== Story 3 Export (2025-12-11T22:23:27.833Z) - 41 sentences ===
+1	93	दक्ष प्रजापतिंगले यज्ञ	dakṣa prajāpatiṃgale yajña
+2	94	दक्ष प्रजापति अग्दि व्यस्त आशिलो	dakṣa prajāpati agdi vyasta āśilo
+3	95	सग्ळ्यांतु श्रेष्ठ यज्ञ तो आयोजित कर्तशिलो	sagḻyāṃtu śreṣṭha yajña to āyojita kartaśilo
+4	96	ताज्जे तैय्यारी कोर्चे नयशिले काम सान!	tājje taiyyārī korce nayaśile kāma sāna!
+5	97	ताका पूर्ण विश्वासु आशिलो कि तागले हाताने ज़ात्ले हे यज्ञ महान!	tākā pūrṇa viśvāsu āśilo ki tāgale hātāne jaātle he yajña mahāna!
+6	98	ब्रह्म, विष्णु आनि बाकि सग्ळ देवांक पेटय्ले आमंत्रण	brahma, viṣṇu āni bāki sagḻa devāṃka peṭayle āmaṃtraṇa
+7	99	सप्त ऋषिंक रित्विक ज़ाव्नु यज्ञ कोरूक दिल्लें दक्षाने निमंत्रण	sapta ṛṣiṃka ritvika jaāvnu yajña korūka dilleṃ dakṣāne nimaṃtraṇa
+8	100	हवनकुण्ड विशेष कोर्नु निर्माण करय्लें	havanakuṇḍa viśeṣa kornu nirmāṇa karayleṃ
+9	101	एकि शुभ तिथि ठरोनु अतिथि स्वागताचे आयोजन ठरय्लें	eki śubha tithi ṭharonu atithi svāgatāce āyojana ṭharayleṃ
+10	102	इत्ल सग्ळें केल्लें ज़ाल्यारि ताज़ो अशुभ आशिलो ध्येयु-	itla sagḻeṃ kelleṃ jaālyāri tājao aśubha āśilo dhyeyu-
+11	103	महादेवागले अपमान कोर्चैं एकमात्र आशिलो तागलो निश्चयु!	mahādevāgale apamāna korcaiṃ ekamātra āśilo tāgalo niścayu!
+12	104	आप्णागले ज़ांवय, सतीगले पति ज़ाव्नु आशिलें	āpṇāgale jaāṃvaya, satīgale pati jaāvnu āśileṃ
+13	105	ईश्वराक आमंत्रित करर्नाशि तागलो तिरस्कार कोर्चें मनान्तु बश्शिलें!	īśvarāka āmaṃtrita kararnāśi tāgalo tiraskāra korceṃ manāntu baśśileṃ!
+14	106	ढोलु, वाज़प आनि वेदमंत्रांचो उद्घोषु...	ḍholu, vājapa āni vedamaṃtrāṃco udghoṣu...
+15	107	चार्रि दिकाने निर्माण ज़ाल्ले वातावरण विशेषु	cārri dikāne nirmāṇa jaālle vātāvaraṇa viśeṣu
+16	108	यज्ञाक वत्तशिले देवांगलि सवारी पळय्ली सती ने!	yajñāka vattaśile devāṃgali savārī paḻaylī satī ne!
+17	109	अर्रे! कस्लकि चुक्क्ल्यां.... कल्याक बा सांगनि आम्का?अशि विचारु केल्लो तिन्ने!	arre! kaslaki cukklyāṃ.... kalyāka bā sāṃgani āmkā?aśi vicāru kello tinne!
+18	110	नाक्का वच्चें म्हुणु ईश्वराने प्रयत्न केले तिका सांगुक	nākkā vacceṃ mhuṇu īśvarāne prayatna kele tikā sāṃguka
+19	111	ज़ाल्यारि भाय्रसर्ल ती दक्षागले यज्ञाक वचुक	jaālyāri bhāyrasarla tī dakṣāgale yajñāka vacuka
+20	112	महादेवाक ज्ञान आश्शिलें दक्षागले विकारात्मक हेतृचो	mahādevāka jñāna āśśileṃ dakṣāgale vikārātmaka hetṛco
+21	113	चिक्के कल्पना आशिलि भयानक भविष्याचो!	cikke kalpanā āśili bhayānaka bhaviṣyāco!
+22	114	ज़ाल्यारि तिगलें मन आश्शिलें पवित्र	jaālyāri tigaleṃ mana āśśileṃ pavitra
+23	115	तिक्का तांतु कस्ले दिस्सनि विचित्र!	tikkā tāṃtu kasle dissani vicitra!
+24	116	"तात कामाचे गोंदोळांतु आम्का आपोंचाक विसर्लो आस्का -	"tāta kāmāce goṃdoḻāṃtu āmkā āpoṃcāka visarlo āskā -
+25	117	हांव पुणि वच्का, नाज़ाल्यारि वाय्ट दिस्स्तलें नवे ताका?	hāṃva puṇi vackā, nājaālyāri vāyṭa disstaleṃ nave tākā?
+26	118	अशि विचारु कोर्नु, नंदी सांगाति भाय्रसर्लि पुत्री दक्षागलि	aśi vicāru kornu, naṃdī sāṃgāti bhāyrasarli putrī dakṣāgali
+27	119	तिन्ने वत्ना दुखि महादेव पळय्त राब्लो अर्धांगिणिक आप्णागलि	tinne vatnā dukhi mahādeva paḻayta rāblo ardhāṃgiṇika āpṇāgali
+28	120	यज्ञस्थळि पाव्नु आनन्दाने बाप्सुक प्रणामु केल्लो सती ने	yajñasthaḻi pāvnu ānandāne bāpsuka praṇāmu kello satī ne
+29	121	ज़ाल्यारि विस्मित ज़ाल्लि ती - तागले दोळे पळय्तशिले तिक्का भयंकर कोप्पाने!	jaālyāri vismita jaālli tī - tāgale doḻe paḻaytaśile tikkā bhayaṃkara koppāne!
+30	122	शुभकार्यान्तु महाविघ्न आय्लें!	śubhakāryāntu mahāvighna āyleṃ!
+31	123	सती ने स्वताले शरीर त्याग केल्लें योगबलाने	satī ne svatāle śarīra tyāga kelleṃ yogabalāne
+32	124	महादेव पीडित ज़ाल्लो हे तीव्र शोकाने	mahādeva pīḍita jaāllo he tīvra śokāne
+33	125	वीरभद्र ज़ाव्नु दक्षागले शिरच्छेदन केल्लें तान्नें!	vīrabhadra jaāvnu dakṣāgale śiracchedana kelleṃ tānneṃ!
+34	126	मागेर्चि काणि सग्ळ्यांक गोत्तशिलि!	māgerci kāṇi sagḻyāṃka gottaśili!
+35	127	सती हिमालय पुत्री ज़ाव्नु परत अवतरित ज़ाल्लि	satī himālaya putrī jaāvnu parata avatarita jaālli
+36	128	दक्ष प्रजापति ने बोकड्येगले मात्तें घेव्नु जीवन केल्लें व्यतीत	dakṣa prajāpati ne bokaḍyegale mātteṃ ghevnu jīvana kelleṃ vyatīta
+37	129	सगळें श्रेष्ठ आस्सुनुय परिणामु ज़ाल्लो अग्दि विपरीत!	sagaḻeṃ śreṣṭha āssunuya pariṇāmu jaāllo agdi viparīta!
+38	130	हांव कस्ले कर्तस? कस्ल्यक कर्तस? परिणामु कस्लो?	hāṃva kasle kartasa? kaslyaka kartasa? pariṇāmu kaslo?
+39	131	हें प्रश्नांचे उत्तर ज़रि सकारात्मक आय्लो....	heṃ praśnāṃce uttara jari sakārātmaka āylo....
+40	132	तरि श्रेष्ठांतु श्रेष्ठ मेळ्ता माक्का अवश्य!	tari śreṣṭhāṃtu śreṣṭha meḻtā mākkā avaśya!
+41	133	उज्ज्वल आनि सफल ज़ात्ले मगले भविष्य!	ujjvala āni saphala jaātle magale bhaviṣya!
