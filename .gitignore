@@ -45,3 +45,6 @@ tmp_test.txt
 # Database dumps
 *.sql.backup
 *.dump
+
+# Vendor binaries (build-only) - do NOT commit large FFmpeg binaries
+vendor/ffmpeg/
