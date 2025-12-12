@@ -5,7 +5,7 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://konkani_user:Rahul1978!@localhost:5432/konkani_collector'
+    connectionString: process.env.DATABASE_URL || 'postgresql://deaf_user:Rahul1978!@localhost:5432/deaf_speech'
 });
 
 async function updateStoryTitles() {
@@ -13,11 +13,12 @@ async function updateStoryTitles() {
         console.log('Updating story titles to match first sentence...\n');
         
         // Update titles
+        // Use regexp_replace to strip trailing punctuation (danda, ascii punctuation) from first sentence when setting title
         await pool.query(`
-            UPDATE stories s 
-            SET title = se.text_devanagari 
-            FROM sentences se 
-            WHERE se.story_id = s.id 
+            UPDATE stories s
+            SET title = regexp_replace(se.text_devanagari, '[।॥.!?]+\\s*$', '')
+            FROM sentences se
+            WHERE se.story_id = s.id
             AND se.order_in_story = 1
         `);
         

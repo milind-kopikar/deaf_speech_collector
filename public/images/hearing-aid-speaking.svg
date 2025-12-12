@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" aria-hidden="true">
+  <title>Person using a hearing aid</title>
+  <desc>Simple illustration of a person with a hearing aid</desc>
+  <g fill="none" fill-rule="evenodd">
+    <circle cx="180" cy="120" r="60" fill="#E9F5FF" stroke="#009EDB" stroke-width="4"/>
+    <path d="M130 170c10 25 40 30 50 30s40-10 52-32" stroke="#1E293B" stroke-width="4" stroke-linecap="round" fill="#fff"/>
+    <path d="M232 121c6 6 6 15 0 21" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+    <rect x="152" y="130" width="14" height="24" rx="6" fill="#009EDB"/>
+    <circle cx="218" cy="128" r="6" fill="#FFD966"/>
+    <rect x="218" y="116" width="10" height="18" rx="5" fill="#FFD966"/>
+  </g>
+</svg>

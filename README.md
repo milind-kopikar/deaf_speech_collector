@@ -1,6 +1,6 @@
 # Deaf Speech Collector
 
-**Empowering Deaf Voices Through AI** 🌐♿
+**Beyond the Echo**
 
 Web application for collecting deaf speech recordings in Marathi to fine-tune ASR (Automatic Speech Recognition) models to understand deaf speech patterns.
 

@@ -16,8 +16,8 @@ const { query, queryOne } = require('../backend/db');
 // Parse command line arguments
 program
     .requiredOption('-f, --file <path>', 'Path to story .txt file')
-    .requiredOption('-t, --title <title>', 'Story title')
-    .option('-l, --language <lang>', 'Language', 'konkani')
+    .option('-t, --title <title>', 'Story title (omit to use first sentence as title)')
+    .option('-l, --language <lang>', 'Language', 'marathi')
     .option('-r, --replace', 'Replace existing story with same source_file or title (deletes existing story and related sentences/recordings)')
     .parse();
 
@@ -34,7 +34,7 @@ const options = program.opts();
  * @returns {string[]} Array of sentence strings, with punctuation merged into proper sentences
  * 
  * Algorithm:
- * 1. Split on Devanagari danda, double danda, or newlines
+ * 1. Split on Devanagari danda (।), double danda (॥), English punctuation (. ! ?), or newlines
  * 2. For each resulting segment, check if it contains only punctuation (no letters)
  * 3. If standalone punctuation found:
  *    - Merge into previous sentence if available
@@ -45,8 +45,15 @@ const options = program.opts();
  * to detect presence of actual letters vs. pure punctuation/symbols.
  */
 function splitIntoSentences(text) {
-    // Split on Devanagari danda (।) or English period or newline
-    let raw = text.split(/[।॥\n]+/).map(s => s.trim());
+    // Normalize newlines into Devanagari danda so that line breaks are treated as sentence boundaries
+    text = text.replace(/\r\n/g, '\n');
+    // Replace single or multiple new lines with a Devanagari danda to force sentence break
+    text = text.replace(/\n+/g, '। ');
+
+    // Attempt to match sentences by capturing chunks that end with Devanagari danda (।), double danda (॥), or ascii punctuation (. ? !)
+    // We include the punctuation in the match for clarity, but we will strip leading/trailing whitespace
+    const matches = text.match(/[^।॥.!?]+[।॥.!?]*/gu) || [];
+    let raw = matches.map(s => s.trim());
     // Post-process to merge standalone punctuation/quote tokens into previous sentence(if present)
     const isStandalonePunc = (s) => {
         if (!s || s.trim().length === 0) return false;
@@ -71,14 +78,15 @@ function splitIntoSentences(text) {
                 raw[i + 1] = (segment + ' ' + raw[i + 1]).trim();
             } else {
                 // nothing to attach; treat as a sentence
-                sentences.push(segment);
+                    sentences.push(segment);
             }
         } else {
             sentences.push(segment);
         }
     }
 
-    return sentences.filter(s => s && s.length > 0);
+    // Final sanitize: remove leading/trailing punctuation characters and compress multiple spaces
+    return sentences.map(s => s.replace(/^\s+|\s+$/g, '').replace(/^["'“”‘’({[]+|["'“”‘’)}\].,;:!?\-]+$/g, '') .replace(/\s+/g, ' ')).filter(s => s && /[\p{L}\u0900-\u097F]/u.test(s));
 }
 
 const { devanagariToIAST } = require('../backend/utils/transliterate-canonical');
@@ -97,7 +105,7 @@ function transliterateToIAST(devanagari) {
 async function importStory() {
     try {
         console.log('='.repeat(50));
-        console.log('📚 Konkani Story Importer');
+        console.log('📚 Story Importer');
         console.log('='.repeat(50));
         
         // 1. Read file
@@ -132,14 +140,17 @@ async function importStory() {
             }
         }
 
-        // 4. Insert story
-        console.log(`Creating story: "${options.title}"`);
-        
+        // 4. Determine story title (use provided title or first sentence)
+        let storyTitle = options.title && options.title.trim().length > 0 ? options.title.trim() : sentences[0];
+        // Remove trailing punctuation such as Devanagari danda or ascii punctuation
+        storyTitle = storyTitle.replace(/[।॥.!?]+\s*$/u, '').trim();
+        console.log(`Creating story: "${storyTitle}"`);
+
         const story = await queryOne(
             `INSERT INTO stories (title, source_file, language, total_sentences)
              VALUES ($1, $2, $3, $4)
              RETURNING id`,
-            [options.title, path.basename(filePath), options.language, sentences.length]
+            [storyTitle, path.basename(filePath), options.language, sentences.length]
         );
 
         console.log(`✓ Story created with ID: ${story.id}`);
@@ -170,12 +181,12 @@ async function importStory() {
         console.log('✅ Import Complete!');
         console.log('='.repeat(50));
         console.log(`Story ID: ${story.id}`);
-        console.log(`Title: ${options.title}`);
+        console.log(`Title: ${storyTitle}`);
         console.log(`Total Sentences: ${sentences.length}`);
         console.log(`Language: ${options.language}`);
         console.log('\nNext steps:');
         console.log(`  1. Open http://localhost:3000/recorder.html`);
-        console.log(`  2. Select story: ${options.title}`);
+        console.log(`  2. Select story: ${storyTitle}`);
         console.log(`  3. Start recording!`);
         console.log('='.repeat(50));
 

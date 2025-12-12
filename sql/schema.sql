@@ -3,8 +3,8 @@
 -- Supporting UN SDG Goal 3: Good Health and Well-Being
 -- Collecting deaf speech recordings in Marathi for ASR fine-tuning
 
--- Enable extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Note: uuid-ossp extension not required (using gen_random_uuid from pgcrypto or built-in)
+-- If you have superuser access, you can run: CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Stories table (Marathi stories)
 CREATE TABLE stories (

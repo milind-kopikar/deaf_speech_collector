@@ -39,8 +39,11 @@ body {
 
 /* Hero Header with SDG Badge */
 .hero-header {
-    text-align: center;
-    padding: 50px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 40px 24px;
     background: var(--gradient-primary);
     color: white;
     border-radius: 16px;
@@ -48,6 +51,8 @@ body {
     box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
+    flex-wrap: wrap;
+    text-align: left;
 }
 
 .hero-header::before {
@@ -78,6 +83,9 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
+.sdg-badge { text-decoration: none; color: inherit; }
+.sdg-badge:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
 .sdg-number {
     font-size: 1.8rem;
     font-weight: bold;
@@ -96,6 +104,33 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* Hero layout: text and image */
+.hero-text {
+    max-width: 62%;
+}
+
+.hero-image {
+    width: 220px;
+    max-width: 40%;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    background: rgba(255,255,255,0.9);
+    padding: 8px;
+}
+
+.hero-image img,
+.hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+@media (max-width: 720px) {
+    .hero-text { max-width: 100%; }
+    .hero-image { width: 160px; margin-top: 16px; }
 }
 
 .hero-header h1 {
