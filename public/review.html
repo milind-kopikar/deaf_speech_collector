@@ -53,12 +53,14 @@
             width: 100%;
             background: white;
             border-radius: 8px;
-            overflow: hidden;
+            overflow-x: auto; /* Enable horizontal scrolling */
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
 
         .recordings-table table {
             width: 100%;
+            min-width: 1000px; /* Ensure table doesn't shrink too much */
             border-collapse: collapse;
         }
 
@@ -186,6 +188,50 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
+        .scroll-hint {
+            text-align: center;
+            padding: 10px;
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .review-container {
+                padding: 0 10px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats-summary {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .recordings-table {
+                border-radius: 0; /* Better for mobile edge-to-edge */
+            }
+
+            .recordings-table th,
+            .recordings-table td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            .sentence-text {
+                max-width: 250px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -222,7 +268,11 @@
             </select>
         </div>
 
-        <div class="recordings-table">
+        <div class="scroll-hint" id="scrollHint" style="display: none;">
+            ← Swipe left to see more →
+        </div>
+
+        <div class="recordings-table" id="recordingsTable">
             <table>
                 <thead>
                     <tr>
@@ -266,6 +316,7 @@
                 allRecordings = await response.json();
                 updateStats();
                 renderRecordings();
+                checkIfScrollable();
             } catch (error) {
                 console.error('Error loading recordings:', error);
                 document.getElementById('recordingsTableBody').innerHTML = `
@@ -390,6 +441,28 @@
 
         // Event listener for filter changes
         document.getElementById('filterStatus').addEventListener('change', renderRecordings);
+
+        // Check if table is scrollable and show hint
+        function checkIfScrollable() {
+            const table = document.getElementById('recordingsTable');
+            const scrollHint = document.getElementById('scrollHint');
+            
+            if (table && scrollHint) {
+                // Check if content is wider than container
+                const isScrollable = table.scrollWidth > table.clientWidth;
+                scrollHint.style.display = isScrollable ? 'block' : 'none';
+                
+                // Hide hint after user scrolls
+                if (isScrollable) {
+                    table.addEventListener('scroll', function() {
+                        scrollHint.style.display = 'none';
+                    }, { once: true });
+                }
+            }
+        }
+
+        // Check on window resize
+        window.addEventListener('resize', checkIfScrollable);
 
         // Load recordings on page load
         loadRecordings();

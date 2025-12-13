@@ -478,7 +478,11 @@ class RecorderApp {
             this.btnPlay.textContent = '▶️ Play';
             this.btnPlay.disabled = false;
             if (audioUrl) URL.revokeObjectURL(audioUrl);
-            this.showStatus(`Error playing audio: ${err.name}`, 'error');
+            
+            // Show detailed error on screen for mobile debugging
+            const errorMsg = `Playback failed: ${err.name} - ${err.message}. Blob: ${this.recordedBlob ? this.recordedBlob.size + 'bytes, ' + this.recordedBlob.type : 'none'}`;
+            this.showStatus(errorMsg, 'error');
+            alert(errorMsg); // Also show as alert for visibility
         }
     }
     
