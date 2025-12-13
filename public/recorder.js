@@ -314,7 +314,13 @@ class RecorderApp {
             };
             
             this.mediaRecorder.onstop = () => {
-                this.recordedBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+                this.recordedBlob = new Blob(this.audioChunks, { type: mimeType });
+                console.log('Recording stopped. Blob created:', {
+                    size: this.recordedBlob.size,
+                    type: this.recordedBlob.type,
+                    mimeType: mimeType
+                });
                 this.onRecordingComplete();
             };
             
@@ -384,13 +390,22 @@ class RecorderApp {
     async playRecording() {
         // Create Audio element FIRST (within user gesture - critical for mobile)
         const audio = new Audio();
+        audio.controls = false;
+        audio.autoplay = false;
+        
         let audioUrl;
         
         // If there's a newly recorded blob, play that
         if (this.recordedBlob) {
             console.log('Playing newly recorded blob, size:', this.recordedBlob.size, 'type:', this.recordedBlob.type);
+            
+            // Create blob URL with explicit type
             audioUrl = URL.createObjectURL(this.recordedBlob);
             audio.src = audioUrl;
+            
+            // Set MIME type explicitly for mobile compatibility
+            const audioType = this.recordedBlob.type || 'audio/webm';
+            console.log('Setting audio type:', audioType);
         } 
         // Otherwise, if sentence has existing recording, fetch and play it
         else if (this.currentSentence.has_recording && this.currentSentence.recording_id) {
@@ -418,6 +433,7 @@ class RecorderApp {
                 return;
             }
         } else {
+            console.log('No recording to play');
             return;
         }
         
@@ -426,41 +442,44 @@ class RecorderApp {
         this.btnPlay.textContent = '⏸️ Playing...';
         this.btnPlay.disabled = true;
         
-        // For mobile compatibility: load before playing
+        // Critical for mobile: ensure the audio is loaded
         audio.load();
         
-        // Start playing immediately within user gesture (critical for mobile Safari/Chrome)
-        const playPromise = audio.play();
-        
-        // Handle play promise (modern browsers return a promise)
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    console.log('Audio playback started successfully');
-                })
-                .catch(err => {
-                    console.error('Play error:', err);
-                    this.btnPlay.textContent = '▶️ Play';
-                    this.btnPlay.disabled = false;
-                    if (audioUrl) URL.revokeObjectURL(audioUrl);
-                    this.showStatus('Error playing audio. Please try again.', 'error');
-                });
-        }
-        
+        // Set up event handlers BEFORE playing
         audio.addEventListener('ended', () => {
             console.log('Audio playback ended');
             this.btnPlay.textContent = '▶️ Play';
             this.btnPlay.disabled = false;
             if (audioUrl) URL.revokeObjectURL(audioUrl);
-        });
+        }, { once: true });
         
         audio.addEventListener('error', (e) => {
-            console.error('Audio error:', e, 'Error code:', audio.error ? audio.error.code : 'unknown');
+            console.error('Audio error:', e);
+            console.error('Audio error code:', audio.error ? audio.error.code : 'unknown');
+            console.error('Audio error message:', audio.error ? audio.error.message : 'unknown');
             this.btnPlay.textContent = '▶️ Play';
             this.btnPlay.disabled = false;
             if (audioUrl) URL.revokeObjectURL(audioUrl);
             this.showStatus('Error playing audio', 'error');
-        });
+        }, { once: true });
+        
+        // Start playing immediately within user gesture (critical for mobile Safari/Chrome)
+        try {
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                await playPromise;
+                console.log('Audio playback started successfully');
+            }
+        } catch (err) {
+            console.error('Play error:', err);
+            console.error('Play error name:', err.name);
+            console.error('Play error message:', err.message);
+            this.btnPlay.textContent = '▶️ Play';
+            this.btnPlay.disabled = false;
+            if (audioUrl) URL.revokeObjectURL(audioUrl);
+            this.showStatus(`Error playing audio: ${err.name}`, 'error');
+        }
     }
     
     rerecord() {
