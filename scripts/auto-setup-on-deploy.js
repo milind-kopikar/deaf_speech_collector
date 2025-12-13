@@ -81,27 +81,28 @@ async function autoSetup() {
             
             await pool.query(schema);
             console.log('✅ Database schema created');
-            
-            // Check if stories exist
-            const storiesResult = await pool.query('SELECT COUNT(*) as count FROM stories');
-            const storyCount = parseInt(storiesResult.rows[0].count);
-            
-            // Force re-import if FORCE_REIMPORT env var is set
-            const forceReimport = process.env.FORCE_REIMPORT === 'true';
-            
-            if (forceReimport && storyCount > 0) {
-                console.log('🔄 FORCE_REIMPORT enabled, clearing existing stories...');
-                await pool.query('DELETE FROM recordings');
-                await pool.query('DELETE FROM user_progress');
-                await pool.query('DELETE FROM sentences');
-                await pool.query('DELETE FROM stories');
-                console.log('✅ Existing data cleared');
-            }
-            
-            const currentStoryCount = forceReimport ? 0 : storyCount;
-            
-            if (currentStoryCount === 0) {
-                console.log('📚 No stories found, importing Marathi stories...');
+        }
+        
+        // Check if stories exist (moved outside the table check)
+        const storiesResult = await pool.query('SELECT COUNT(*) as count FROM stories');
+        const storyCount = parseInt(storiesResult.rows[0].count);
+        
+        // Force re-import if FORCE_REIMPORT env var is set
+        const forceReimport = process.env.FORCE_REIMPORT === 'true';
+        
+        if (forceReimport && storyCount > 0) {
+            console.log('🔄 FORCE_REIMPORT enabled, clearing existing stories...');
+            await pool.query('DELETE FROM recordings');
+            await pool.query('DELETE FROM user_progress');
+            await pool.query('DELETE FROM sentences');
+            await pool.query('DELETE FROM stories');
+            console.log('✅ Existing data cleared');
+        }
+        
+        const currentStoryCount = forceReimport ? 0 : storyCount;
+        
+        if (currentStoryCount === 0) {
+            console.log('📚 No stories found, importing Marathi stories...');
                 
                 // Import stories automatically
                 const storyFiles = [
@@ -152,9 +153,6 @@ async function autoSetup() {
                 
                 console.log('✅ Story import complete');
             }
-        } else {
-            console.log('✅ Database already initialized');
-        }
         
         await pool.end();
         
