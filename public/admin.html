@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Deaf Speech Collector</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .admin-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .token-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .admin-button {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .admin-button:hover {
+            background: #1d4ed8;
+        }
+
+        .admin-button.danger {
+            background: #dc2626;
+        }
+
+        .admin-button.danger:hover {
+            background: #b91c1c;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #2563eb;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .result-box.error {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .result-box.success {
+            border-left-color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .warning {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>🔧 Admin Panel</h1>
+        <p style="color: #64748b;">Maintenance and cleanup tools</p>
+
+        <div class="admin-section">
+            <h2>Authentication</h2>
+            <p>Enter your admin token to access admin functions:</p>
+            <input 
+                type="password" 
+                id="adminToken" 
+                class="token-input" 
+                placeholder="Enter ADMIN_TOKEN from Railway variables"
+                autocomplete="off">
+            <small style="color: #64748b;">Token is stored in browser session only</small>
+        </div>
+
+        <div class="admin-section">
+            <h2>📊 Statistics</h2>
+            <p>View recording statistics by status</p>
+            <button class="admin-button" onclick="getStats()">Get Stats</button>
+            <div id="statsResult" class="result-box"></div>
+        </div>
+
+        <div class="admin-section">
+            <h2>🗑️ Cleanup Deleted Recordings</h2>
+            <div class="warning">
+                <strong>⚠️ Warning:</strong> This will permanently delete all recordings marked as "deleted" from both the database and R2 storage. This action cannot be undone!
+            </div>
+            <p>Before running cleanup, check stats above to see how many recordings will be deleted.</p>
+            <button class="admin-button danger" onclick="runCleanup()">Run Cleanup</button>
+            <div id="cleanupResult" class="result-box"></div>
+        </div>
+    </div>
+
+    <script>
+        function getToken() {
+            const token = document.getElementById('adminToken').value.trim();
+            if (!token) {
+                alert('Please enter admin token first');
+                return null;
+            }
+            return token;
+        }
+
+        async function getStats() {
+            const token = getToken();
+            if (!token) return;
+
+            const resultBox = document.getElementById('statsResult');
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box';
+            resultBox.textContent = 'Loading...';
+
+            try {
+                const response = await fetch(`/api/admin/stats?token=${encodeURIComponent(token)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Request failed');
+                }
+
+                resultBox.className = 'result-box success';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultBox.className = 'result-box error';
+                resultBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function runCleanup() {
+            const token = getToken();
+            if (!token) return;
+
+            if (!confirm('Are you sure you want to permanently delete all recordings marked as "deleted"?\n\nThis cannot be undone!')) {
+                return;
+            }
+
+            const resultBox = document.getElementById('cleanupResult');
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box';
+            resultBox.textContent = 'Running cleanup...\nThis may take a few moments...';
+
+            try {
+                const response = await fetch(`/api/admin/cleanup-deleted?token=${encodeURIComponent(token)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Request failed');
+                }
+
+                resultBox.className = 'result-box success';
+                resultBox.textContent = JSON.stringify(data, null, 2);
+
+                if (data.success) {
+                    alert(`✅ Cleanup complete!\n\nDeleted: ${data.deleted}\nFailed: ${data.failed}`);
+                }
+            } catch (error) {
+                resultBox.className = 'result-box error';
+                resultBox.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Save/load token from sessionStorage
+        window.addEventListener('load', () => {
+            const savedToken = sessionStorage.getItem('adminToken');
+            if (savedToken) {
+                document.getElementById('adminToken').value = savedToken;
+            }
+        });
+
+        document.getElementById('adminToken').addEventListener('change', (e) => {
+            sessionStorage.setItem('adminToken', e.target.value);
+        });
+    </script>
+</body>
+</html>
