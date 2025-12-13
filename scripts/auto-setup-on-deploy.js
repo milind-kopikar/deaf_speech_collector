@@ -15,6 +15,7 @@ function splitIntoSentences(text) {
     text = text.replace(/\n+/g, '। ');
 
     // Attempt to match sentences by capturing chunks that end with Devanagari danda (।), double danda (॥), or ascii punctuation (. ? !)
+    // Note: This regex does NOT treat quotes as delimiters, keeping quoted text within sentences
     const matches = text.match(/[^।॥.!?]+[।॥.!?]*/gu) || [];
     let raw = matches.map(s => s.trim());
     
@@ -43,8 +44,8 @@ function splitIntoSentences(text) {
         }
     }
 
-    // Final sanitize
-    return sentences.map(s => s.replace(/^\s+|\s+$/g, '').replace(/^["'""''({[]+|["'""'')}\].,;:!?\-]+$/g, '').replace(/\s+/g, ' ')).filter(s => s && /[\p{L}\u0900-\u097F]/u.test(s));
+    // Final sanitize - trim whitespace and normalize spaces, but preserve quotes within sentences
+    return sentences.map(s => s.trim().replace(/\s+/g, ' ')).filter(s => s && /[\p{L}\u0900-\u097F]/u.test(s));
 }
 
 async function autoSetup() {
