@@ -220,6 +220,48 @@ AWS_SECRET_ACCESS_KEY=<R2_secret_key>
 4. Set environment variables in Railway dashboard
 5. Deploy automatically on git push
 
+## Quality Review & Recording Management
+
+### Review Interface
+
+Access the review page at `/review.html` to:
+- Listen to all recordings
+- Mark quality status: **Pending** / **Approved** / **Rejected** / **Delete**
+- Filter by status
+- View recording statistics
+
+### Recording Status Workflow
+
+1. **Pending**: Newly uploaded, awaiting review
+2. **Approved**: Good quality, ready for ASR training
+3. **Rejected**: Needs re-recording (poor audio, wrong sentence, etc.)
+4. **Delete**: Mark for permanent deletion
+
+### Cleanup Process
+
+**Two-step safety for deletions:**
+
+```bash
+# 1. Mark recordings for deletion in review.html UI (set status to "Delete")
+
+# 2. Run cleanup script periodically to permanently delete
+npm run cleanup-deleted
+```
+
+The cleanup script will:
+- Find all recordings with `status='deleted'`
+- Delete audio files from R2/S3 storage
+- Remove database entries
+- Display detailed progress and summary
+
+**Benefits:**
+- **Batch deletion**: Review first, delete later
+- **Storage cost savings**: Remove orphaned files from cloud storage
+- **Two-step safety**: Prevents accidental deletions
+- **Clean database**: No dangling references
+
+See `CLEANUP_GUIDE.md` for detailed documentation.
+
 ## Project Structure
 
 ```
@@ -234,10 +276,13 @@ konkani_collector/
 ├── scripts/                # CLI tools
 │   ├── import-story.js
 │   ├── export-asr-manifest.js
-│   └── verify-audio.js
+│   ├── verify-audio.js
+│   ├── cleanup-deleted-recordings.js  # Permanent deletion
+│   └── clear-test-recordings.js       # Clear all test data
 ├── public/                 # Frontend
 │   ├── index.html
 │   ├── recorder.html
+│   ├── review.html         # Quality review interface
 │   └── app.js
 ├── sql/                    # Database schema
 │   ├── schema.sql
