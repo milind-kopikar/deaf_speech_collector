@@ -235,8 +235,8 @@ router.patch('/:id', async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        if (!['pending', 'approved', 'rejected'].includes(status)) {
-            return res.status(400).json({ error: 'status must be pending, approved, or rejected' });
+        if (!['pending', 'approved', 'rejected', 'deleted'].includes(status)) {
+            return res.status(400).json({ error: 'status must be pending, approved, rejected, or deleted' });
         }
 
         const result = await query(

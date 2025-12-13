@@ -34,6 +34,7 @@ app.use('/api/sentences', require('./routes/sentences'));
 app.use('/api/recordings', require('./routes/recordings'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/programmatic', require('./routes/programmatic'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Test endpoints (disable in production)
 if (process.env.ENABLE_TEST_ENDPOINTS === 'true') {
