@@ -418,7 +418,6 @@ class RecorderApp {
         }
         
         const audio = new Audio();
-        audio.preload = 'auto';
         audio.src = audioUrl;
         
         console.log('Audio element created, src:', audioUrl);
@@ -426,16 +425,23 @@ class RecorderApp {
         this.btnPlay.textContent = '⏸️ Playing...';
         this.btnPlay.disabled = true;
         
-        // Use loadeddata instead of canplaythrough for more reliable playback
-        audio.addEventListener('loadeddata', () => {
-            console.log('Audio loaded, duration:', audio.duration, 'seconds');
-            audio.play().catch(err => {
-                console.error('Play error:', err);
-                this.btnPlay.textContent = '▶️ Play';
-                this.btnPlay.disabled = false;
-                URL.revokeObjectURL(audioUrl);
-            });
-        }, { once: true });
+        // Start playing immediately within user gesture (critical for mobile Safari/Chrome)
+        const playPromise = audio.play();
+        
+        // Handle play promise (modern browsers return a promise)
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    console.log('Audio playback started successfully');
+                })
+                .catch(err => {
+                    console.error('Play error:', err);
+                    this.btnPlay.textContent = '▶️ Play';
+                    this.btnPlay.disabled = false;
+                    URL.revokeObjectURL(audioUrl);
+                    this.showStatus('Error playing audio. Please try again.', 'error');
+                });
+        }
         
         audio.addEventListener('ended', () => {
             console.log('Audio playback ended');
@@ -451,13 +457,7 @@ class RecorderApp {
             URL.revokeObjectURL(audioUrl);
             this.showStatus('Error playing audio', 'error');
         });
-        
-        audio.addEventListener('pause', () => {
-            console.log('Audio paused at:', audio.currentTime, '/', audio.duration);
-        });
-        
-        // Start loading the audio
-        audio.load();
+    }
     }
     
     rerecord() {

@@ -32,7 +32,7 @@ router.post('/cleanup-deleted', requireAdminToken, async (req, res) => {
         
         // Get all recordings marked as 'deleted'
         const result = await query(
-            `SELECT id, filename, sentence_id, user_id, created_at 
+            `SELECT id, audio_filepath, sentence_id, user_id, created_at 
              FROM recordings 
              WHERE status = $1 
              ORDER BY created_at`,
@@ -60,12 +60,12 @@ router.post('/cleanup-deleted', requireAdminToken, async (req, res) => {
         
         for (const recording of deletedRecordings) {
             try {
-                console.log(`   Processing ID ${recording.id}: ${recording.filename}`);
+                console.log(`   Processing ID ${recording.id}: ${recording.audio_filepath}`);
                 
                 // Delete from storage (R2/S3)
                 try {
-                    await storage.deleteFile(recording.filename);
-                    console.log(`      ✓ Deleted from storage: ${recording.filename}`);
+                    await storage.deleteFile(recording.audio_filepath);
+                    console.log(`      ✓ Deleted from storage: ${recording.audio_filepath}`);
                 } catch (storageErr) {
                     console.warn(`      ⚠️  Storage delete failed (may not exist): ${storageErr.message}`);
                     // Continue even if storage delete fails
