@@ -123,10 +123,10 @@ async function autoSetup() {
                         }
                         
                         const title = lines[0];
-                        const restOfContent = lines.slice(1).join('\n');
+                        const allContent = lines.join('\n');
                         
                         // Use proper sentence splitting (handles Devanagari danda, punctuation, newlines)
-                        const sentences = splitIntoSentences(restOfContent);
+                        const sentences = splitIntoSentences(allContent);
                         
                         console.log(`Importing ${storyFile}: "${title}" (${sentences.length} sentences)...`);
                         
