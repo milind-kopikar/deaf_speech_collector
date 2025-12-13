@@ -23,15 +23,25 @@ function splitIntoSentences(text) {
     
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
+        const charCode = char.charCodeAt(0);
         
-        // Track quote state (supports both ASCII and Devanagari quotes)
-        if (['"', '"', '"', "'", ''', '''].includes(char)) {
+        // Track quote state (supports both ASCII and Unicode quotes)
+        // ASCII: " (34) ' (39)
+        // Unicode left: " (8220) ' (8216)
+        // Unicode right: " (8221) ' (8217)
+        const isQuote = char === '"' || char === "'" || 
+                       charCode === 8220 || charCode === 8221 || 
+                       charCode === 8216 || charCode === 8217;
+        
+        if (isQuote) {
             if (!inQuote) {
                 inQuote = true;
                 quoteChar = char;
             } else if (char === quoteChar || 
-                      (quoteChar === '"' && ['"', '"'].includes(char)) ||
-                      (quoteChar === "'" && [''', '''].includes(char))) {
+                      (quoteChar.charCodeAt(0) === 8220 && charCode === 8221) || // " to "
+                      (quoteChar.charCodeAt(0) === 8216 && charCode === 8217) || // ' to '
+                      (quoteChar === '"' && (charCode === 8220 || charCode === 8221)) ||
+                      (quoteChar === "'" && (charCode === 8216 || charCode === 8217))) {
                 inQuote = false;
                 quoteChar = null;
             }
