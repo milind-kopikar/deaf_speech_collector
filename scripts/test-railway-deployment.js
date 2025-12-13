@@ -12,6 +12,7 @@
  *   S3_BUCKET - R2 bucket name
  *   AWS_ACCESS_KEY_ID - R2 access key
  *   AWS_SECRET_ACCESS_KEY - R2 secret key
+ *   S3_PREFIX - Optional. When set, files are stored under <S3_PREFIX>/recordings/...
  */
 
 const { Pool } = require('pg');
@@ -172,6 +173,7 @@ async function testR2Storage() {
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
   const region = process.env.S3_REGION || 'auto';
+  const prefix = process.env.S3_PREFIX || '';
   
   // Check environment variables
   logInfo('Checking R2 configuration...');
@@ -196,6 +198,7 @@ async function testR2Storage() {
   else console.log(`   AWS_SECRET_ACCESS_KEY: ${'*'.repeat(32)}`);
   
   console.log(`   S3_REGION: ${region}`);
+  if (prefix) console.log(`   S3_PREFIX: ${prefix}`);
   
   if (missing.length > 0) {
     logError(`Missing environment variables: ${missing.join(', ')}`);

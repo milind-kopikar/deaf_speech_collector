@@ -93,6 +93,7 @@ S3_BUCKET=deaf-speech-recordings
 S3_REGION=auto
 AWS_ACCESS_KEY_ID=(your R2 access key)
 AWS_SECRET_ACCESS_KEY=(your R2 secret key)
+S3_PREFIX=deaf_speech
 NODE_ENV=production
 ```
 

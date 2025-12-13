@@ -192,21 +192,21 @@ STORAGE_TYPE=s3
 
 # AWS S3
 S3_ENDPOINT=https://s3.amazonaws.com
-S3_BUCKET=konkani-recordings
+S3_BUCKET=deaf-speech-recordings
 S3_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret
 
 # Or Backblaze B2
 S3_ENDPOINT=https://s3.us-west-002.backblazeb2.com
-S3_BUCKET=konkani-recordings
+S3_BUCKET=deaf-speech-recordings
 S3_REGION=us-west-002
 AWS_ACCESS_KEY_ID=<B2_keyId>
 AWS_SECRET_ACCESS_KEY=<B2_applicationKey>
 
 # Or Cloudflare R2
 S3_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
-S3_BUCKET=konkani-recordings
+S3_BUCKET=deaf-speech-recordings
 S3_REGION=auto
 AWS_ACCESS_KEY_ID=<R2_access_key>
 AWS_SECRET_ACCESS_KEY=<R2_secret_key>

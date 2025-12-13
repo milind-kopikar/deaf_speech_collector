@@ -16,7 +16,8 @@
     "check-ffmpeg": "node scripts/check-ffmpeg.js",
     "convert-single-recording": "node scripts/convert-single-recording.js",
     "copy-ffmpeg-local": "node scripts/copy-ffmpeg.js",
-    "clear-recordings": "node scripts/clear-recordings.js"
+    "clear-recordings": "node scripts/clear-recordings.js",
+    "cleanup-deleted": "node scripts/cleanup-deleted-recordings.js"
   },
   "jest": {
     "testPathIgnorePatterns": [

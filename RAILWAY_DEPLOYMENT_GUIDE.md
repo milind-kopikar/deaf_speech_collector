@@ -121,6 +121,7 @@ S3_BUCKET=konkani-recordings
 S3_REGION=auto
 AWS_ACCESS_KEY_ID=<your-r2-access-key>
 AWS_SECRET_ACCESS_KEY=<your-r2-secret-key>
+S3_PREFIX=deaf_speech
 ```
 
 Restart server and record a test sentence - it should upload to R2!

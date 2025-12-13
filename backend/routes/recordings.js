@@ -121,8 +121,10 @@ router.post('/', upload.single('audio'), validateRecordingUpload, async (req, re
             return res.status(422).json({ error: 'Validation failed', validation: { valid: false, errors: [e.message] } });
         }
 
-        // 4. Generate storage filename
-        const filename = `recordings/${user_id.replace(/[^a-z0-9]/gi, '_')}_${sentence_id}_${uuidv4()}.wav`;
+        // 4. Generate storage filename (allow optional prefix via S3_PREFIX env var)
+        let prefix = process.env.S3_PREFIX || '';
+        if (prefix && !prefix.endsWith('/')) prefix = prefix + '/';
+        const filename = `${prefix}recordings/${user_id.replace(/[^a-z0-9]/gi, '_')}_${sentence_id}_${uuidv4()}.wav`;
 
         // 5. Save to storage
         const storedPath = await storage.save(wavPath, filename);

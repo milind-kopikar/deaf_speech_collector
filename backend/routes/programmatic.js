@@ -142,8 +142,10 @@ router.post('/upload', upload.single('audio'), async (req, res, next) => {
         // Validate
         const validation = await validateAudio(wavPath, sentence.text_devanagari);
 
-        // Store
-        const filename = `recordings/${user_id.replace(/[^a-z0-9]/gi, '_')}_${sentence_id}_${uuidv4()}.wav`;
+        // Store (support S3_PREFIX env var to isolate project data)
+        let prefix = process.env.S3_PREFIX || '';
+        if (prefix && !prefix.endsWith('/')) prefix = prefix + '/';
+        const filename = `${prefix}recordings/${user_id.replace(/[^a-z0-9]/gi, '_')}_${sentence_id}_${uuidv4()}.wav`;
         const storedPath = await storage.save(wavPath, filename);
         const fileSize = await storage.getSize(storedPath);
 
