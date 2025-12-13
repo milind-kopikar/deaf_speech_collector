@@ -118,8 +118,7 @@ router.get('/stats', requireAdminToken, async (req, res) => {
         const result = await query(`
             SELECT 
                 status,
-                COUNT(*) as count,
-                SUM(CASE WHEN duration IS NOT NULL THEN duration ELSE 0 END) as total_duration_sec
+                COUNT(*) as count
             FROM recordings
             GROUP BY status
         `);
