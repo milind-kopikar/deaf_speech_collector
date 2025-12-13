@@ -8,4 +8,4 @@ cmds = ["npm install --no-package-lock"]
 cmds = []
 
 [start]
-cmd = "node backend/server.js"
+cmd = "node scripts/auto-setup-on-deploy.js && node backend/server.js"
