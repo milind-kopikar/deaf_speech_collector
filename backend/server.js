@@ -1,6 +1,7 @@
 /**
- * Konkani Collector - Main Server
- * Express app for recording collection system
+ * Deaf Speech Collector - Main Server
+ * Express app for deaf speech recording collection system
+ * Supporting UN SDG Goal 3: Good Health and Well-Being
  */
 
 require('dotenv').config();
@@ -60,7 +61,8 @@ app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {
     console.log('='.repeat(50));
-    console.log('🎙️  Konkani Collector Server');
+    console.log('🦻 Deaf Speech Collector Server');
+    console.log('🌍 Supporting UN SDG Goal 3: Good Health and Well-Being');
     console.log('='.repeat(50));
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
