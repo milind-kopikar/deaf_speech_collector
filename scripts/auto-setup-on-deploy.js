@@ -48,9 +48,53 @@ async function autoSetup() {
             const storyCount = parseInt(storiesResult.rows[0].count);
             
             if (storyCount === 0) {
-                console.log('📚 No stories found, auto-setup complete');
-                console.log('⚠️  Please import stories manually using Railway CLI:');
-                console.log('   railway run node scripts/import-story.js marathi_story1.txt');
+                console.log('📚 No stories found, importing Marathi stories...');
+                
+                // Import stories automatically
+                const storyFiles = [
+                    'marathi_story1.txt',
+                    'marathi_story2.txt',
+                    'marathi_story3.txt'
+                ];
+                
+                for (const storyFile of storyFiles) {
+                    try {
+                        const storyPath = path.join(__dirname, '..', storyFile);
+                        const storyContent = await fs.readFile(storyPath, 'utf8');
+                        const lines = storyContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        
+                        if (lines.length === 0) {
+                            console.log(`⚠️  ${storyFile} is empty, skipping`);
+                            continue;
+                        }
+                        
+                        const title = lines[0];
+                        const sentences = lines.slice(1);
+                        
+                        console.log(`Importing ${storyFile}: "${title}" (${sentences.length} sentences)...`);
+                        
+                        // Insert story
+                        const storyResult = await pool.query(
+                            'INSERT INTO stories (title, language, total_sentences) VALUES ($1, $2, $3) RETURNING id',
+                            [title, 'marathi', sentences.length]
+                        );
+                        const storyId = storyResult.rows[0].id;
+                        
+                        // Insert sentences
+                        for (let i = 0; i < sentences.length; i++) {
+                            await pool.query(
+                                'INSERT INTO sentences (story_id, order_in_story, text_devanagari) VALUES ($1, $2, $3)',
+                                [storyId, i + 1, sentences[i]]
+                            );
+                        }
+                        
+                        console.log(`✅ Imported ${storyFile}`);
+                    } catch (err) {
+                        console.error(`❌ Failed to import ${storyFile}:`, err.message);
+                    }
+                }
+                
+                console.log('✅ Story import complete');
             }
         } else {
             console.log('✅ Database already initialized');
