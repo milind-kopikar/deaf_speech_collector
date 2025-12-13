@@ -14,38 +14,54 @@ function splitIntoSentences(text) {
     // Replace single or multiple new lines with a Devanagari danda to force sentence break
     text = text.replace(/\n+/g, '। ');
 
-    // Attempt to match sentences by capturing chunks that end with Devanagari danda (।), double danda (॥), or ascii punctuation (. ? !)
-    // Note: This regex does NOT treat quotes as delimiters, keeping quoted text within sentences
-    const matches = text.match(/[^।॥.!?]+[।॥.!?]*/gu) || [];
-    let raw = matches.map(s => s.trim());
-    
-    // Post-process to merge standalone punctuation/quote tokens into previous sentence
-    const isStandalonePunc = (s) => {
-        if (!s || s.trim().length === 0) return false;
-        const hasLetter = /[\p{L}\u0900-\u097F]/u.test(s);
-        if (hasLetter) return false;
-        return true;
-    };
-
+    // Split sentences while preserving quoted text
+    // Strategy: Split on sentence-ending punctuation (।॥.!?) ONLY when not inside quotes
     const sentences = [];
-    for (let i = 0; i < raw.length; i++) {
-        const segment = raw[i];
-        if (!segment || segment.length === 0) continue;
-        if (isStandalonePunc(segment)) {
-            if (sentences.length > 0) {
-                sentences[sentences.length - 1] = (sentences[sentences.length - 1] + ' ' + segment).trim();
-            } else if (i + 1 < raw.length && raw[i + 1] && raw[i + 1].length > 0) {
-                raw[i + 1] = (segment + ' ' + raw[i + 1]).trim();
-            } else {
-                sentences.push(segment);
+    let current = '';
+    let inQuote = false;
+    let quoteChar = null;
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        // Track quote state (supports both ASCII and Devanagari quotes)
+        if (['"', '"', '"', "'", ''', '''].includes(char)) {
+            if (!inQuote) {
+                inQuote = true;
+                quoteChar = char;
+            } else if (char === quoteChar || 
+                      (quoteChar === '"' && ['"', '"'].includes(char)) ||
+                      (quoteChar === "'" && [''', '''].includes(char))) {
+                inQuote = false;
+                quoteChar = null;
             }
-        } else {
-            sentences.push(segment);
+            current += char;
+        }
+        // If we're at sentence-ending punctuation and NOT inside quotes
+        else if (['।', '॥', '.', '!', '?'].includes(char) && !inQuote) {
+            current += char;
+            // Check if next char is whitespace or end of string (real sentence boundary)
+            if (i + 1 >= text.length || /\s/.test(text[i + 1])) {
+                const trimmed = current.trim();
+                if (trimmed && /[\p{L}\u0900-\u097F]/u.test(trimmed)) {
+                    sentences.push(trimmed);
+                }
+                current = '';
+            }
+        }
+        // Regular character
+        else {
+            current += char;
         }
     }
+    
+    // Don't forget the last sentence if it doesn't end with punctuation
+    if (current.trim() && /[\p{L}\u0900-\u097F]/u.test(current.trim())) {
+        sentences.push(current.trim());
+    }
 
-    // Final sanitize - trim whitespace and normalize spaces, but preserve quotes within sentences
-    return sentences.map(s => s.trim().replace(/\s+/g, ' ')).filter(s => s && /[\p{L}\u0900-\u097F]/u.test(s));
+    // Normalize whitespace in each sentence
+    return sentences.map(s => s.replace(/\s+/g, ' ').trim()).filter(s => s.length > 0);
 }
 
 async function autoSetup() {
