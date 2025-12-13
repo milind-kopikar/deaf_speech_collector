@@ -113,6 +113,8 @@ router.post('/cleanup-deleted', requireAdminToken, async (req, res) => {
  */
 router.get('/stats', requireAdminToken, async (req, res) => {
     try {
+        console.log('📊 Fetching recording stats...');
+        
         const result = await query(`
             SELECT 
                 status,
@@ -122,17 +124,21 @@ router.get('/stats', requireAdminToken, async (req, res) => {
             GROUP BY status
         `);
         
+        console.log('✅ Stats query result:', result.rows);
+        
         const stats = {
-            by_status: result.rows,
-            total: result.rows.reduce((sum, row) => sum + parseInt(row.count), 0)
+            by_status: result.rows || [],
+            total: result.rows ? result.rows.reduce((sum, row) => sum + parseInt(row.count), 0) : 0
         };
         
         res.json(stats);
     } catch (error) {
         console.error('❌ Stats error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ 
             error: 'Failed to fetch stats',
-            message: error.message 
+            message: error.message,
+            detail: error.detail || 'No additional details'
         });
     }
 });
