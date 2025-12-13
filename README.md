@@ -244,11 +244,45 @@ Access the review page at `/review.html` to:
 ```bash
 # 1. Mark recordings for deletion in review.html UI (set status to "Delete")
 
-# 2. Run cleanup script periodically to permanently delete
-npm run cleanup-deleted
+# 2. Run cleanup via admin API endpoint (requires ADMIN_TOKEN)
 ```
 
-The cleanup script will:
+#### Setup Admin Token
+
+Add to Railway environment variables:
+```env
+ADMIN_TOKEN=your-secret-token-here
+```
+
+Choose a strong random token, e.g., `ds_cleanup_8x9K2mP5vQ3wR7nL4jF`
+
+#### Run Cleanup (3 Options)
+
+**Option 1: Browser**
+```
+https://your-app.railway.app/api/admin/cleanup-deleted?token=your-secret-token
+```
+
+**Option 2: PowerShell**
+```powershell
+$token = "your-secret-token"
+$url = "https://your-app.railway.app/api/admin/cleanup-deleted?token=$token"
+Invoke-RestMethod -Uri $url -Method POST
+```
+
+**Option 3: CLI Script (local only)**
+```bash
+npm run cleanup-deleted  # Requires DATABASE_URL and storage credentials
+```
+
+#### Check Deletion Queue
+
+View statistics before cleanup:
+```
+https://your-app.railway.app/api/admin/stats?token=your-secret-token
+```
+
+**The cleanup process will:**
 - Find all recordings with `status='deleted'`
 - Delete audio files from R2/S3 storage
 - Remove database entries
