@@ -458,7 +458,6 @@ class RecorderApp {
             this.showStatus('Error playing audio', 'error');
         });
     }
-    }
     
     rerecord() {
         if (this.errorSection) this.errorSection.style.display = 'none';
