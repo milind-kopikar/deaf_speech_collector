@@ -8,6 +8,45 @@ const { Pool } = require('pg');
 const fs = require('fs').promises;
 const path = require('path');
 
+function splitIntoSentences(text) {
+    // Normalize newlines into Devanagari danda so that line breaks are treated as sentence boundaries
+    text = text.replace(/\r\n/g, '\n');
+    // Replace single or multiple new lines with a Devanagari danda to force sentence break
+    text = text.replace(/\n+/g, '। ');
+
+    // Attempt to match sentences by capturing chunks that end with Devanagari danda (।), double danda (॥), or ascii punctuation (. ? !)
+    const matches = text.match(/[^।॥.!?]+[।॥.!?]*/gu) || [];
+    let raw = matches.map(s => s.trim());
+    
+    // Post-process to merge standalone punctuation/quote tokens into previous sentence
+    const isStandalonePunc = (s) => {
+        if (!s || s.trim().length === 0) return false;
+        const hasLetter = /[\p{L}\u0900-\u097F]/u.test(s);
+        if (hasLetter) return false;
+        return true;
+    };
+
+    const sentences = [];
+    for (let i = 0; i < raw.length; i++) {
+        const segment = raw[i];
+        if (!segment || segment.length === 0) continue;
+        if (isStandalonePunc(segment)) {
+            if (sentences.length > 0) {
+                sentences[sentences.length - 1] = (sentences[sentences.length - 1] + ' ' + segment).trim();
+            } else if (i + 1 < raw.length && raw[i + 1] && raw[i + 1].length > 0) {
+                raw[i + 1] = (segment + ' ' + raw[i + 1]).trim();
+            } else {
+                sentences.push(segment);
+            }
+        } else {
+            sentences.push(segment);
+        }
+    }
+
+    // Final sanitize
+    return sentences.map(s => s.replace(/^\s+|\s+$/g, '').replace(/^["'""''({[]+|["'""'')}\].,;:!?\-]+$/g, '').replace(/\s+/g, ' ')).filter(s => s && /[\p{L}\u0900-\u097F]/u.test(s));
+}
+
 async function autoSetup() {
     console.log('🚀 Auto-setup: Checking database status...');
     
@@ -69,7 +108,10 @@ async function autoSetup() {
                         }
                         
                         const title = lines[0];
-                        const sentences = lines.slice(1);
+                        const restOfContent = lines.slice(1).join('\n');
+                        
+                        // Use proper sentence splitting (handles Devanagari danda, punctuation, newlines)
+                        const sentences = splitIntoSentences(restOfContent);
                         
                         console.log(`Importing ${storyFile}: "${title}" (${sentences.length} sentences)...`);
                         
