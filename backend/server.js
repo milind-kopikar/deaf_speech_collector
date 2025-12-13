@@ -10,6 +10,9 @@ const cors = require('cors');
 const path = require('path');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
+// Run auto-setup before starting server
+const autoSetup = require('../scripts/auto-setup-on-deploy');
+
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,16 +61,26 @@ app.use(notFoundHandler);
 // Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-    console.log('='.repeat(50));
-    console.log('🦻 Deaf Speech Collector Server');
-    console.log('🌍 Supporting UN SDG Goal 3: Good Health and Well-Being');
-    console.log('='.repeat(50));
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Storage: ${process.env.STORAGE_TYPE || 'local'}`);
-    console.log('='.repeat(50));
-});
+// Run auto-setup then start server
+async function startServer() {
+    try {
+        await autoSetup();
+    } catch (error) {
+        console.error('⚠️  Auto-setup failed (continuing anyway):', error.message);
+    }
+    
+    app.listen(PORT, () => {
+        console.log('='.repeat(50));
+        console.log('🦻 Deaf Speech Collector Server');
+        console.log('🌍 Supporting UN SDG Goal 3: Good Health and Well-Being');
+        console.log('='.repeat(50));
+        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`Storage: ${process.env.STORAGE_TYPE || 'local'}`);
+        console.log('='.repeat(50));
+    });
+}
+
+startServer();
 
 module.exports = app;
