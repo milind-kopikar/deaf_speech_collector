@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../db');
-const { getStorage } = require('../storage');
+const storage = require('../storage');
 
 // Simple token-based authentication middleware
 function requireAdminToken(req, res, next) {
@@ -51,7 +51,6 @@ router.post('/cleanup-deleted', requireAdminToken, async (req, res) => {
         
         console.log(`📊 Found ${deletedRecordings.length} recording(s) marked for deletion`);
         
-        const storage = getStorage();
         const results = {
             total: deletedRecordings.length,
             deleted: 0,
@@ -130,7 +129,11 @@ router.get('/stats', requireAdminToken, async (req, res) => {
         
         res.json(stats);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch stats' });
+        console.error('❌ Stats error:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch stats',
+            message: error.message 
+        });
     }
 });
 
