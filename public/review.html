@@ -295,6 +295,102 @@
 
     <script>
         let allRecordings = [];
+        let currentAudio = null; // Track currently playing audio
+
+        function playAudio(recordingId) {
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            const statusEl = document.getElementById(`status-${recordingId}`);
+            const btn = document.querySelector(`button[data-recording-id="${recordingId}"]`);
+            
+            statusEl.textContent = 'Loading...';
+            btn.disabled = true;
+
+            // Create audio element FIRST in user gesture context
+            const audio = new Audio();
+            currentAudio = audio;
+
+            // Set up event handlers before loading
+            audio.addEventListener('loadedmetadata', () => {
+                console.log(`[${recordingId}] Audio loaded, duration: ${audio.duration}s`);
+                statusEl.textContent = `Duration: ${audio.duration.toFixed(1)}s`;
+            });
+
+            audio.addEventListener('playing', () => {
+                console.log(`[${recordingId}] Playing...`);
+                statusEl.textContent = '▶ Playing...';
+                btn.textContent = '⏸ Pause';
+                btn.disabled = false;
+                btn.onclick = () => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    URL.revokeObjectURL(audio.src);
+                };
+            });
+
+            audio.addEventListener('ended', () => {
+                console.log(`[${recordingId}] Playback ended`);
+                statusEl.textContent = '✓ Finished';
+                btn.textContent = '▶ Play';
+                btn.disabled = false;
+                btn.onclick = () => playAudio(recordingId);
+                URL.revokeObjectURL(audio.src);
+                currentAudio = null;
+            });
+
+            audio.addEventListener('error', (e) => {
+                console.error(`[${recordingId}] Audio error:`, e);
+                if (audio.error) {
+                    const errors = {
+                        1: 'Loading aborted',
+                        2: 'Network error', 
+                        3: 'Decode error',
+                        4: 'Format not supported'
+                    };
+                    console.error(`[${recordingId}] Error code:`, audio.error.code, errors[audio.error.code]);
+                    statusEl.textContent = `Error: ${errors[audio.error.code]}`;
+                } else {
+                    statusEl.textContent = 'Playback error';
+                }
+                URL.revokeObjectURL(audio.src);
+                btn.disabled = false;
+            });
+
+            // Fetch audio as blob, then set src and play
+            fetch(`/api/recordings/${recordingId}/audio`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    console.log(`[${recordingId}] Fetch successful, loading blob...`);
+                    return response.blob();
+                })
+                .then(blob => {
+                    console.log(`[${recordingId}] Blob loaded, size: ${blob.size} bytes, type: ${blob.type}`);
+                    
+                    // Create object URL and set as source
+                    const objectUrl = URL.createObjectURL(blob);
+                    audio.src = objectUrl;
+                    
+                    // Play immediately - still within user gesture context chain
+                    return audio.play();
+                })
+                .then(() => {
+                    console.log(`[${recordingId}] Play started successfully`);
+                })
+                .catch(error => {
+                    console.error(`[${recordingId}] Error:`, error);
+                    statusEl.textContent = `Error: ${error.message}`;
+                    btn.disabled = false;
+                    if (audio.src && audio.src.startsWith('blob:')) {
+                        URL.revokeObjectURL(audio.src);
+                    }
+                });
+        }
 
         function maskEmail(email) {
             if (!email || email.length < 3) return email;
@@ -377,10 +473,14 @@
                         <div class="sentence-text">${recording.sentence_text}</div>
                     </td>
                     <td>
-                        <audio controls class="audio-player" preload="metadata">
-                            <source src="/api/recordings/${recording.id}/audio" type="audio/wav">
-                            Your browser does not support the audio element.
-                        </audio>
+                        <button 
+                            class="play-btn" 
+                            data-recording-id="${recording.id}"
+                            onclick="playAudio(${recording.id})"
+                            style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                            ▶ Play
+                        </button>
+                        <span id="status-${recording.id}" style="margin-left: 10px; font-size: 12px; color: #64748b;"></span>
                     </td>
                     <td>
                         <select 

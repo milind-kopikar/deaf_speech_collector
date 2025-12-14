@@ -219,7 +219,7 @@ router.get('/', async (req, res) => {
                 sentence_id, order_in_story, sentence_text, story_id, story_title
             FROM ranked_recordings
             WHERE rn = 1
-            ORDER BY story_id ASC, order_in_story ASC, created_at DESC`
+            ORDER BY user_id ASC, story_id ASC, order_in_story ASC`
         );
 
         res.json(result.rows);
