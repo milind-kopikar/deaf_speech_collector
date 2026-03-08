@@ -128,58 +128,74 @@ async function autoSetup() {
         
         const currentStoryCount = forceReimport ? 0 : storyCount;
         
-        if (currentStoryCount === 0) {
-            console.log('📚 No stories found, importing Marathi stories...');
-                
-                // Import stories automatically
-                const storyFiles = [
-                    'marathi_story1.txt',
-                    'marathi_story2.txt',
-                    'marathi_story3.txt'
-                ];
-                
-                for (const storyFile of storyFiles) {
-                    try {
-                        const storyPath = path.join(__dirname, '..', storyFile);
-                        const storyContent = await fs.readFile(storyPath, 'utf8');
-                        const lines = storyContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                        
-                        if (lines.length === 0) {
-                            console.log(`⚠️  ${storyFile} is empty, skipping`);
-                            continue;
-                        }
-                        
-                        const title = lines[0];
-                        const allContent = lines.join('\n');
-                        
-                        // Use proper sentence splitting (handles Devanagari danda, punctuation, newlines)
-                        const sentences = splitIntoSentences(allContent);
-                        
-                        console.log(`Importing ${storyFile}: "${title}" (${sentences.length} sentences)...`);
-                        
-                        // Insert story
-                        const storyResult = await pool.query(
-                            'INSERT INTO stories (title, language, total_sentences) VALUES ($1, $2, $3) RETURNING id',
-                            [title, 'marathi', sentences.length]
-                        );
-                        const storyId = storyResult.rows[0].id;
-                        
-                        // Insert sentences
-                        for (let i = 0; i < sentences.length; i++) {
-                            await pool.query(
-                                'INSERT INTO sentences (story_id, order_in_story, text_devanagari) VALUES ($1, $2, $3)',
-                                [storyId, i + 1, sentences[i]]
-                            );
-                        }
-                        
-                        console.log(`✅ Imported ${storyFile}`);
-                    } catch (err) {
-                        console.error(`❌ Failed to import ${storyFile}:`, err.message);
-                    }
+        // Import any story files not yet in the database (checked individually by source_file)
+        const storyFiles = [
+            'marathi_story1.txt',
+            'marathi_story2.txt',
+            'marathi_story3.txt',
+            'marathi_story4.txt',
+            'marathi_story5.txt',
+        ];
+
+        let importedCount = 0;
+        for (const storyFile of storyFiles) {
+            try {
+                // Check if this story file is already in the database
+                const existing = await pool.query(
+                    'SELECT id FROM stories WHERE source_file = $1',
+                    [storyFile]
+                );
+                if (existing.rows.length > 0) {
+                    console.log(`✓ ${storyFile} already imported (id=${existing.rows[0].id}), skipping`);
+                    continue;
                 }
-                
-                console.log('✅ Story import complete');
+
+                const storyPath = path.join(__dirname, '..', storyFile);
+                let storyContent;
+                try {
+                    storyContent = await fs.readFile(storyPath, 'utf8');
+                } catch (readErr) {
+                    console.log(`⚠️  ${storyFile} not found on disk, skipping`);
+                    continue;
+                }
+
+                const lines = storyContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length === 0) {
+                    console.log(`⚠️  ${storyFile} is empty, skipping`);
+                    continue;
+                }
+
+                const title = lines[0];
+                const allContent = lines.join('\n');
+                const sentences = splitIntoSentences(allContent);
+
+                console.log(`📖 Importing ${storyFile}: "${title}" (${sentences.length} sentences)...`);
+
+                const storyResult = await pool.query(
+                    'INSERT INTO stories (title, source_file, language, total_sentences) VALUES ($1, $2, $3, $4) RETURNING id',
+                    [title, storyFile, 'marathi', sentences.length]
+                );
+                const storyId = storyResult.rows[0].id;
+
+                for (let i = 0; i < sentences.length; i++) {
+                    await pool.query(
+                        'INSERT INTO sentences (story_id, order_in_story, text_devanagari) VALUES ($1, $2, $3)',
+                        [storyId, i + 1, sentences[i]]
+                    );
+                }
+
+                console.log(`✅ Imported ${storyFile} (story id=${storyId})`);
+                importedCount++;
+            } catch (err) {
+                console.error(`❌ Failed to import ${storyFile}:`, err.message);
             }
+        }
+
+        if (importedCount > 0) {
+            console.log(`✅ Story import complete — ${importedCount} new story/stories added`);
+        } else {
+            console.log('✅ All stories already present, nothing to import');
+        }
         
         await pool.end();
         
