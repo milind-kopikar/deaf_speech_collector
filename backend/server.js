@@ -36,6 +36,16 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/programmatic', require('./routes/programmatic'));
 app.use('/api/admin', require('./routes/admin'));
 
+// ASR live-demo telemetry (gated by COLLECTOR_API_KEY Bearer auth).
+// See backend/routes/asr_demo.js for the full endpoint contract.
+if (!process.env.COLLECTOR_API_KEY) {
+    console.warn(
+        '⚠️  COLLECTOR_API_KEY not set — /api/asr-demo/* will reject all requests with 503. ' +
+        'Set it on Railway to enable.'
+    );
+}
+app.use('/api/asr-demo', require('./routes/asr_demo'));
+
 // Test endpoints (disable in production)
 if (process.env.ENABLE_TEST_ENDPOINTS === 'true') {
     app.use('/api/test', require('./routes/test'));
